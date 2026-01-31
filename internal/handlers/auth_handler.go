@@ -14,6 +14,13 @@ type AuthHandler struct {
 	userRepo    *repositories.UserRepository
 }
 
+func NewAuthHandler() *AuthHandler {
+	return &AuthHandler{
+		authService: &services.AuthService{},
+		userRepo:    &repositories.UserRepository{},
+	}
+}
+
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
