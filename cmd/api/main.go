@@ -32,15 +32,15 @@ func main() {
 	})
 
 	// API v1 routes group
-	v1 := router.Group("/api/v1")
+	root := router.Group("/api")
 	{
 		// Users routes
-		v1.GET("/users", func(c *gin.Context) {
+		root.GET("/users", func(c *gin.Context) {
 			c.JSON(200, gin.H{"message": "List all users"})
 		})
 
 		// Events routes
-		v1.GET("/events", func(c *gin.Context) {
+		root.GET("/events", func(c *gin.Context) {
 			c.JSON(200, gin.H{"message": "List all events"})
 		})
 	}
