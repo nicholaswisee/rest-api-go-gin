@@ -5,6 +5,8 @@ import (
 	"rest-api-go-gin/internal/models"
 	"rest-api-go-gin/internal/repositories"
 	"rest-api-go-gin/internal/services"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,12 +14,14 @@ import (
 type AuthHandler struct {
 	authService *services.AuthService
 	userRepo    *repositories.UserRepository
+	sessionRepo *repositories.SessionRepository
 }
 
 func NewAuthHandler() *AuthHandler {
 	return &AuthHandler{
 		authService: &services.AuthService{},
 		userRepo:    &repositories.UserRepository{},
+		sessionRepo: &repositories.SessionRepository{},
 	}
 }
 
@@ -51,8 +55,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
 		return
 	}
+
 	// Generate token
 	token, _ := h.authService.GenerateToken(user.ID, user.Email)
+
+	// Create session
+	session := &models.Session{
+		UserID:    user.ID,
+		Token:     token,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+	h.sessionRepo.Create(session)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"token": token,
@@ -83,8 +96,40 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// Generate token
 	token, _ := h.authService.GenerateToken(user.ID, user.Email)
+
+	// Create session
+	session := &models.Session{
+		UserID:    user.ID,
+		Token:     token,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+	h.sessionRepo.Create(session)
+
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 		"user":  user,
 	})
+}
+
+// POST /api/auth/logout
+func (h *AuthHandler) Logout(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+		return
+	}
+
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token format"})
+		return
+	}
+
+	token := parts[1]
+	if err := h.sessionRepo.RevokeByToken(token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

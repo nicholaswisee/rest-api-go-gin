@@ -34,5 +34,6 @@ func AutoMigrate() {
 		&models.User{},
 		&models.Event{},
 		&models.Attendee{},
+		&models.Session{},
 	)
 }

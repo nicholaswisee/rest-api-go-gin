@@ -21,6 +21,7 @@ func Setup(router *gin.Engine) {
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
+		auth.POST("/logout", authHandler.Logout)
 	}
 
 	// Protected routes (auth required)
