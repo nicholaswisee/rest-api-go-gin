@@ -35,7 +35,17 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
 
-// POST /api/auth/register
+// Register godoc
+// @Summary      Register a new user
+// @Description  Create a new user account with email and password
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body RegisterRequest true "User registration data"
+// @Success      201 {object} map[string]interface{} "Returns token and user"
+// @Failure      400 {object} map[string]interface{} "Validation error"
+// @Failure      409 {object} map[string]interface{} "Email already exists"
+// @Router       /api/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -73,7 +83,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// POST /api/auth/login
+// Login godoc
+// @Summary      Login user
+// @Description  Authenticate user and return JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body LoginRequest true "User login credentials"
+// @Success      200 {object} map[string]interface{} "Returns token and user"
+// @Failure      400 {object} map[string]interface{} "Validation error"
+// @Failure      401 {object} map[string]interface{} "Invalid credentials"
+// @Router       /api/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -111,7 +131,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// POST /api/auth/logout
+// Logout godoc
+// @Summary      Logout user
+// @Description  Revoke current session token
+// @Tags         auth
+// @Produce      json
+// @Param        Authorization header string true "Bearer token"
+// @Success      200 {object} map[string]interface{} "Logged out successfully"
+// @Failure      400 {object} map[string]interface{} "No token or invalid format"
+// @Failure      500 {object} map[string]interface{} "Server error"
+// @Router       /api/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {

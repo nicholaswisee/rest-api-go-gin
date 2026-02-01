@@ -28,7 +28,15 @@ func Setup(router *gin.Engine) {
 	api := router.Group("/api")
 	api.Use(middleware.AuthRequired())
 	{
-		// Get current user
+		// GetMe godoc
+		// @Summary      Get current user
+		// @Description  Returns the authenticated user's info
+		// @Tags         user
+		// @Produce      json
+		// @Security     BearerAuth
+		// @Success      200 {object} map[string]interface{} "User info"
+		// @Failure      401 {object} map[string]interface{} "Unauthorized"
+		// @Router       /api/me [get]
 		api.GET("/me", func(c *gin.Context) {
 			userID := c.GetUint("userID")
 			email := c.GetString("email")
@@ -38,10 +46,29 @@ func Setup(router *gin.Engine) {
 			})
 		})
 
-		// Events routes (placeholder - add your event handler)
+		// GetEvents godoc
+		// @Summary      List all events
+		// @Description  Returns a list of all events
+		// @Tags         events
+		// @Produce      json
+		// @Security     BearerAuth
+		// @Success      200 {object} map[string]interface{} "List of events"
+		// @Failure      401 {object} map[string]interface{} "Unauthorized"
+		// @Router       /api/events [get]
 		api.GET("/events", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"message": "List all events"})
 		})
+
+		// CreateEvent godoc
+		// @Summary      Create an event
+		// @Description  Create a new event
+		// @Tags         events
+		// @Accept       json
+		// @Produce      json
+		// @Security     BearerAuth
+		// @Success      201 {object} map[string]interface{} "Event created"
+		// @Failure      401 {object} map[string]interface{} "Unauthorized"
+		// @Router       /api/events [post]
 		api.POST("/events", func(c *gin.Context) {
 			c.JSON(http.StatusCreated, gin.H{"message": "Create event"})
 		})
